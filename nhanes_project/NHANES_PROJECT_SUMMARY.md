@@ -49,7 +49,7 @@ Survey design columns (`WTMEC2YR`, `SDMVPSU`, `SDMVSTRA`) and `SEQN` are **never
 
 ## 4. Scripts and how to rerun
 
-Run from the project root, in this order:
+Run from **inside `nhanes_project/`** (`cd nhanes_project`), in this order:
 
 | Step | Script | What it does | Output |
 |---|---|---|---|
@@ -57,12 +57,9 @@ Run from the project root, in this order:
 | 2 | `scripts/train_simple.py` | Cross-validation of all models x feature sets A–D, hypothesis tests H1–H5 (training set only) | Printed table |
 | 3 | `scripts/final_evaluation.py` | Tuning, cut-off, **one-time test-set evaluation**, calibration, decision curve, odds ratios, SHAP | `outputs/final_evaluation_results.txt`, `outputs/figures/*_final.png` |
 
-Other scripts (older or helper versions, kept for history):
-- `cleaning2.py`: builds v1 (still valid; v2 contains it)
-- `cleaning.py`, `01_build_cleaned_dataset.py`: earlier cleaning versions
-- `train_baseline.py`: earlier, longer training script (uses v1)
-- `check_toxo_positives_negatives.py`: verifies positive/negative counts
-- `fetch_sources.py`: downloads PubMed/openFDA/UniProt material (from an earlier LLM idea, now out of scope)
+Also kept: `cleaning2.py`, which builds v1 (still valid; v2 contains it).
+
+Removed in the 26 Oct 2026 clean-up (still in the GitHub history, commit `10529e2` and earlier): `cleaning.py`, `01_build_cleaned_dataset.py`, `train_baseline.py`, `check_toxo_positives_negatives.py`, `fetch_sources.py` and the PubMed/openFDA/UniProt/MedQuAD material from the dropped LLM idea.
 
 Packages: pandas, numpy, scikit-learn 1.7, xgboost 3.4, shap 0.52, matplotlib, scipy (`statsmodels` is **not** needed).
 
@@ -140,6 +137,7 @@ Birthplace / years in U.S. 0.48 > age 0.45 > race/ethnicity 0.30 > education 0.1
 | IEEE LaTeX paper (for Prism) | `paper/toxoplasma_ieee.tex` (upload the 3 PNGs with it) |
 | Revised proposal (Claude Doc, 25 refs, full Results) | https://claude.ai/artifact/7afvqusm9Rpopb9tc6775H |
 | Original 34-item reference list | `paper/references.txt` (includes the old LLM references) |
+| Achtziger et al. 2025 paper + appendix (ref [6]) | `paper/sources/` |
 
 ---
 
@@ -163,11 +161,11 @@ Birthplace / years in U.S. 0.48 > age 0.45 > race/ethnicity 0.30 > education 0.1
 | NHANES 2009–2010, 2011–2012 | **Same test and cut-off as 2013–2014, can be pooled** (6,670 and 6,097 with IgG). 2011–12 includes special Toxoplasma subsample weights (`WTSSTT2Y`). |
 | NHANES 1999–2004 | Ages 6–49 only, different calibration (positive at 10 IU/mL or above), so not directly comparable |
 | NHANES 2005–2008, 2015 onwards | No Toxoplasma testing |
-| **Makassar (Polanunu et al. 2021, PLoS ONE)** | Public, 184 pregnant women, 60 positive, **direct exposure questions**. Saved at `data/raw/makassar/polanunu2021_S1.sav`. Exposures alone give CV ROC-AUC ~0.86–0.88 vs 0.50 for demographics. |
+| **Makassar (Polanunu et al. 2021, PLoS ONE)** | Public, 184 pregnant women, 60 positive, **direct exposure questions**. Now in `../makassar_project/data/raw/polanunu2021_S1.sav`. Exposures alone give CV ROC-AUC ~0.86–0.88 vs 0.50 for demographics. |
 | UK Biobank | ~9,400 with Toxoplasma serology, but needs an approved application + fees |
-| Flegr (`data/raw/flegr/`) | Only 747 labelled rows, 10 columns, self-reported |
-| Achtziger (`data/raw/achtziger/`) | Clinical study: 13 positives. Online survey: no real label |
-| `data/Data Clean.csv` | Indonesian health survey, no Toxoplasma variable |
+| Flegr | Only 747 labelled rows, 10 columns, self-reported (removed in clean-up; in GitHub history) |
+| Achtziger | Clinical study: 13 positives. Online survey: no real label (data removed in clean-up; PDFs kept in `paper/sources/`) |
+| `Data Clean.csv` | Indonesian health survey, no Toxoplasma variable (removed in clean-up; in GitHub history) |
 
 ---
 
@@ -175,14 +173,14 @@ Birthplace / years in U.S. 0.48 > age 0.45 > race/ethnicity 0.30 > education 0.1
 - [ ] Decide the paper title (only demographics stay in the final model)
 - [ ] Fill in author department, university and emails in the LaTeX
 - [ ] Find the venue and year for Ichwan et al.
-- [ ] Commit the new work to git. Untracked: `scripts/cleaning3.py`, `scripts/train_simple.py`, `scripts/final_evaluation.py`, `data/processed/nhanes_adult_toxo_clean_v2.csv`, the 5 new NHANES files, `data/raw/makassar/`, `paper/`, `outputs/`, this file
+- [x] Commit and push the work to GitHub (done by the user, commit `10529e2`)
 - [ ] (Team draft) Check the marker-selection leakage in the code
 
 ---
 
 ## 11. Next project: self-distillation on the Makassar data
 Plan agreed so far (from Mr Feri's suggestion: KD, MTKD, deep mutual learning, self-distillation; self-distillation is the cheapest):
-1. `scripts/clean_makassar.py` → `data/processed/makassar_clean.csv`
+1. `makassar_project/scripts/clean_makassar.py` → `makassar_project/data/processed/makassar_clean.csv`
 2. Baselines (LR, RF, XGBoost, small MLP) with repeated CV
 3. Controls: label smoothing, stronger L2
 4. Self-distillation with an **out-of-fold teacher**; LR/XGBoost learn soft labels via the duplicate-row + sample-weight trick, the MLP learns them directly
